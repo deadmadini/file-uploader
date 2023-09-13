@@ -1,0 +1,59 @@
+﻿@page "/"
+
+@using FileUploader.Data
+@inject DataValidations Validation
+@inject FileUploaderService FileUploaderService
+
+<PageTitle>File Uploader</PageTitle>
+
+<div class="justify-content-center">
+    <div class="form-group w-50" style="margin:auto">
+        <div class="mt-2">
+            <label for="emailField">Email</label>
+            <input id="emailField" type="text" class="form-control" @bind="@Email" />
+        </div>
+        <div class="mt-2">
+            <label for="fileField">File</label>
+            <InputFile id="fileField" class="form-control" OnChange="@LoadFile" />
+        </div>
+        <div class="d-flex flex-row-reverse">
+            <button class="btn btn-primary mt-4" onclick="@SendFile">Submit</button>
+        </div>
+    </div>
+    @if (Message != null)
+    {
+        <div class="alert alert-@MessageStyle w-75 justify-content-center mt-5" style="display: flex; margin: auto">@Message</div>
+    }
+</div>
+
+@code{
+    private string Email{ get; set; }
+    private IBrowserFile LoadedFile = null;
+    private string Message { get; set; }
+    private string MessageStyle{ get; set; }
+
+    private void LoadFile(InputFileChangeEventArgs e)
+    {
+        LoadedFile = e.GetMultipleFiles()[0];    
+    }
+    private async Task SendFile()
+    {
+        Message = null;
+        if(!Validation.IsValidEmail(Email)){
+            Message = "Error: Invalid email address!";
+            MessageStyle = "danger";
+            return;
+        }
+        if (!Validation.IsValidDocxFile(LoadedFile))
+        {
+            Message = "Error: File is required and only .docx files are allowed!";
+            MessageStyle = "danger";
+            return;
+        }
+
+        Message = "Succesfully submited!";
+        MessageStyle = "success";
+        using Stream streamFile = LoadedFile.OpenReadStream();
+        await FileUploaderService.UploadFile(streamFile, Path.GetRandomFileName() + Path.GetExtension(LoadedFile.Name), new Dictionary<string, string>{ { "email", Email } });
+    }
+}
