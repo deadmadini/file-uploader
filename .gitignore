@@ -3,3 +3,5 @@ appsettings.Development.json
 /obj
 /bin
 /Properties
+FileUploader.csproj.user
+
