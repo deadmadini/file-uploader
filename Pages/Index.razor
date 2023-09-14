@@ -50,10 +50,9 @@
             MessageStyle = "danger";
             return;
         }
-
-        Message = "Succesfully submited!";
-        MessageStyle = "success";
         using Stream streamFile = LoadedFile.OpenReadStream();
         await FileUploaderService.UploadFile(streamFile, Path.GetRandomFileName() + Path.GetExtension(LoadedFile.Name), new Dictionary<string, string>{ { "email", Email } });
+        MessageStyle = "success";
+        Message = "Succesfully submited!";
     }
 }
